@@ -1,6 +1,19 @@
+using CompraProgramada.Application.DTOs;
+
 namespace CompraProgramada.Application.Interfaces;
 
-public interface IClienteService { }
+/// <summary>
+/// Serviço de gerenciamento de clientes — adesão, saída, alterações e consultas.
+/// </summary>
+public interface IClienteService
+{
+    Task<AdesaoResponse> AderirAsync(AdesaoRequest request);
+    Task<SaidaResponse> SairAsync(int clienteId);
+    Task<AlterarValorMensalResponse> AlterarValorMensalAsync(int clienteId, AlterarValorMensalRequest request);
+    Task<CarteiraResponse> ConsultarCarteiraAsync(int clienteId);
+    Task<RentabilidadeResponse> ConsultarRentabilidadeAsync(int clienteId);
+}
+
 public interface ICestaService { }
 
 /// <summary>
@@ -8,16 +21,7 @@ public interface ICestaService { }
 /// </summary>
 public interface ICotacaoService
 {
-    /// <summary>
-    /// Obtém o preço de fechamento mais recente de um ticker.
-    /// Retorna null se o ticker não for encontrado.
-    /// </summary>
     decimal? ObterPrecoFechamento(string ticker);
-
-    /// <summary>
-    /// Obtém preços de fechamento de múltiplos tickers em uma única operação.
-    /// Retorna dicionário ticker → preço.
-    /// </summary>
     Dictionary<string, decimal> ObterCotacoesFechamento(IEnumerable<string> tickers);
 }
 
