@@ -1,0 +1,40 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.vs/
+.vscode/
+*.DotSettings
+
+## Build
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+## NuGet
+*.nupkg
+**/packages/
+*.nuget.props
+*.nuget.targets
+
+## IDE
+.idea/
+*.swp
+*~
+
+## OS
+Thumbs.db
+.DS_Store
+
+## Test results
+TestResults/
+coverage/
+
+## Docker
+mysql_data/
+
+## Internal / Support
+Materiais de apoio/
+.gemini/
