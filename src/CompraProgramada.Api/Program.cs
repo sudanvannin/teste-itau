@@ -30,7 +30,7 @@ builder.Services.AddSwaggerGen(c =>
 // ── Entity Framework Core + MySQL ────────────────────────────
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(connectionString!, ServerVersion.Parse("8.0.0-mysql")));
 
 // ── Kafka ────────────────────────────────────────────────────
 builder.Services.Configure<KafkaSettings>(
