@@ -39,12 +39,12 @@ builder.Services.Configure<KafkaSettings>(
 builder.Services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
 
 // ── Application Services ─────────────────────────────────────
-builder.Services.AddScoped<IClienteService, ClienteService>();
-builder.Services.AddScoped<ICestaService, CestaService>();
-builder.Services.AddScoped<ICotacaoService, CotacaoService>();
-builder.Services.AddScoped<IMotorCompraService, MotorCompraService>();
-builder.Services.AddScoped<IDistribuicaoService, DistribuicaoService>();
-builder.Services.AddScoped<IRebalanceamentoService, RebalanceamentoService>();
+builder.Services.AddScoped<IClienteService, CompraProgramada.Infrastructure.Services.ClienteService>();
+builder.Services.AddScoped<ICestaService, CompraProgramada.Infrastructure.Services.CestaService>();
+builder.Services.AddScoped<ICotacaoService, CompraProgramada.Application.Services.CotacaoService>();
+builder.Services.AddScoped<IMotorCompraService, CompraProgramada.Infrastructure.Services.MotorCompraService>();
+builder.Services.AddScoped<IDistribuicaoService, CompraProgramada.Infrastructure.Services.DistribuicaoService>();
+builder.Services.AddScoped<IRebalanceamentoService, CompraProgramada.Infrastructure.Services.RebalanceamentoService>();
 
 var app = builder.Build();
 

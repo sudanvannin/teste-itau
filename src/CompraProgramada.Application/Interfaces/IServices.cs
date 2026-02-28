@@ -14,7 +14,14 @@ public interface IClienteService
     Task<RentabilidadeResponse> ConsultarRentabilidadeAsync(int clienteId);
 }
 
-public interface ICestaService { }
+/// <summary>
+/// Gerenciamento da cesta de recomendação (Top Five).
+/// </summary>
+public interface ICestaService
+{
+    Task<CestaResponse> CriarOuSubstituirAsync(CriarCestaRequest request);
+    Task<CestaResponse> ObterAtivaAsync();
+}
 
 /// <summary>
 /// Serviço de cotações — busca preços de fechamento dos arquivos COTAHIST da B3.
@@ -25,6 +32,26 @@ public interface ICotacaoService
     Dictionary<string, decimal> ObterCotacoesFechamento(IEnumerable<string> tickers);
 }
 
-public interface IMotorCompraService { }
-public interface IDistribuicaoService { }
-public interface IRebalanceamentoService { }
+/// <summary>
+/// Motor de compra consolidada na conta Master.
+/// </summary>
+public interface IMotorCompraService
+{
+    Task<CompraConsolidadaResponse> ExecutarCompraAsync(DisparoCompraRequest request);
+}
+
+/// <summary>
+/// Distribuição de ativos da Master para Filhotes.
+/// </summary>
+public interface IDistribuicaoService
+{
+    Task<DistribuicaoResponse> DistribuirAsync(int ordemCompraId);
+}
+
+/// <summary>
+/// Rebalanceamento de carteiras conforme nova cesta.
+/// </summary>
+public interface IRebalanceamentoService
+{
+    Task<RebalanceamentoResponse> RebalancearAsync();
+}

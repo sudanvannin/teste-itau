@@ -1,13 +1,9 @@
 namespace CompraProgramada.Application.Services;
 
-public class CestaService : Interfaces.ICestaService { }
-
+// No stubs — all service implementations are in Infrastructure.Services
+// This file kept for backward compatibility with any Application.Services imports
 public class CotacaoService : Interfaces.ICotacaoService
 {
     public decimal? ObterPrecoFechamento(string ticker) => null;
     public Dictionary<string, decimal> ObterCotacoesFechamento(IEnumerable<string> tickers) => new();
 }
-
-public class MotorCompraService : Interfaces.IMotorCompraService { }
-public class DistribuicaoService : Interfaces.IDistribuicaoService { }
-public class RebalanceamentoService : Interfaces.IRebalanceamentoService { }
