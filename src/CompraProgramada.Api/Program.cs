@@ -37,6 +37,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.Configure<KafkaSettings>(
     builder.Configuration.GetSection("Kafka"));
 builder.Services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
+builder.Services.AddHostedService<KafkaConsumerHostedService>();
 
 // ── Application Services ─────────────────────────────────────
 builder.Services.AddScoped<IClienteService, CompraProgramada.Infrastructure.Services.ClienteService>();
