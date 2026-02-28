@@ -1,5 +1,6 @@
 using CompraProgramada.Infrastructure.Data;
 using CompraProgramada.Infrastructure.Kafka;
+using CompraProgramada.Infrastructure.Services;
 using CompraProgramada.Application.Interfaces;
 using CompraProgramada.Application.Services;
 using Microsoft.EntityFrameworkCore;
