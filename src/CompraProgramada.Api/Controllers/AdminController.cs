@@ -71,6 +71,18 @@ public class AdminController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Retorna o histórico completo de cestas de recomendação — ativas e inativas.
+    /// Ordenadas da mais recente para a mais antiga.
+    /// </summary>
+    [HttpGet("cesta/historico")]
+    [ProducesResponseType(typeof(HistoricoCestasResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ObterHistoricoCestas()
+    {
+        var response = await _cestaService.ObterHistoricoAsync();
+        return Ok(response);
+    }
+
     // ── Motor de Compra ──────────────────────────────────────
 
     /// <summary>

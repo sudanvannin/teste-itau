@@ -16,11 +16,23 @@ public record CestaResponse(
     bool Ativa,
     DateTime DataCriacao,
     List<CestaItemResponse> Itens,
-    string Mensagem);
+    string Mensagem)
+{
+    public DateTime? DataDesativacao { get; init; }
+}
 
 public record CestaItemResponse(
     string Ticker,
     decimal Percentual);
+
+/// <summary>
+/// Resposta do endpoint GET /api/admin/cesta/historico.
+/// Todas as cestas (ativas e inativas), ordenadas da mais recente para a mais antiga.
+/// </summary>
+public record HistoricoCestasResponse(
+    int TotalCestas,
+    CestaResponse? CestaAtiva,
+    List<CestaResponse> Historico);
 
 // ── Motor de Compra ──────────────────────────────────────────
 
@@ -81,12 +93,43 @@ public record OperacaoRebalanceamentoResponse(
     int Quantidade,
     decimal Preco);
 
-// ── IR ───────────────────────────────────────────────────────
+// ── IR — Eventos Kafka (RN-056 / RN-062) ─────────────────────
 
-public record IRNotificacaoResponse(
-    string Tipo,
+/// <summary>
+/// Evento publicado no tópico ir-dedo-duro a cada distribuição ao cliente (RN-056).
+/// Contém todos os campos exigidos para rastreamento da Receita Federal.
+/// </summary>
+public record IRDedoDuroEvent(
+    string Tipo,            // "IR_DEDO_DURO"
     int ClienteId,
+    string Cpf,
     string Ticker,
+    string TipoOperacao,    // "COMPRA"
+    int Quantidade,
+    decimal PrecoUnitario,
     decimal ValorOperacao,
+    decimal Aliquota,       // 0.00005
     decimal ValorIR,
-    DateTime DataEvento);
+    DateTime DataOperacao);
+
+/// <summary>
+/// Evento publicado no tópico ir-venda após rebalanceamento com vendas > R$20k (RN-062).
+/// </summary>
+public record IRVendaEvent(
+    string Tipo,            // "IR_VENDA"
+    int ClienteId,
+    string Cpf,
+    string MesReferencia,   // "2026-03"
+    decimal TotalVendasMes,
+    decimal LucroLiquido,
+    decimal Aliquota,       // 0.20
+    decimal ValorIR,
+    List<DetalheVendaIR> Detalhes,
+    DateTime DataCalculo);
+
+public record DetalheVendaIR(
+    string Ticker,
+    int Quantidade,
+    decimal PrecoVenda,
+    decimal PrecoMedio,
+    decimal Lucro);
