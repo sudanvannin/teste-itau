@@ -169,16 +169,35 @@ public class RebalanceamentoService : IRebalanceamentoService
                 }
             }
 
-            // RN-057 a RN-062: IR sobre vendas
+            // RN-057 a RN-062: IR sobre vendas — publicar evento completo no Kafka
             if (vendas.Any())
             {
                 var irVenda = IRCalculator.CalcularIRVenda(totalVendasMes, lucroLiquidoTotal);
+                var aliquota = totalVendasMes > 20_000m && lucroLiquidoTotal > 0 ? 0.20m : 0m;
+
+                // Montar detalhes por ativo vendido (exigido pelo RN-062)
+                var detalhesPorTicker = _db.VendasRebalanceamento
+                    .Where(v => v.ClienteId == cliente.Id
+                             && v.DataVenda >= DateTime.UtcNow.Date)
+                    .Select(v => new DetalheVendaIR(
+                        v.Ticker, v.Quantidade, v.PrecoVenda, v.PrecoMedio,
+                        IRCalculator.CalcularLucroLiquido(v.Quantidade, v.PrecoVenda, v.PrecoMedio)))
+                    .ToList();
+
                 await _kafka.PublishAsync(
                     _kafkaSettings.TopicIRVenda,
                     cliente.Id.ToString(),
-                    new IRNotificacaoResponse(
-                        "IR_VENDA", cliente.Id, "REBALANCEAMENTO",
-                        totalVendasMes, irVenda, DateTime.UtcNow));
+                    new IRVendaEvent(
+                        Tipo:          "IR_VENDA",
+                        ClienteId:     cliente.Id,
+                        Cpf:           cliente.CPF,
+                        MesReferencia: DateTime.UtcNow.ToString("yyyy-MM"),
+                        TotalVendasMes: totalVendasMes,
+                        LucroLiquido:  lucroLiquidoTotal,
+                        Aliquota:      aliquota,
+                        ValorIR:       irVenda,
+                        Detalhes:      detalhesPorTicker,
+                        DataCalculo:   DateTime.UtcNow));
             }
 
             operacoesPorCliente.Add(new RebalanceamentoClienteResponse(

@@ -5,19 +5,32 @@ using CompraProgramada.Domain.Entities;
 using CompraProgramada.Domain.Enums;
 using CompraProgramada.Domain.Services;
 using CompraProgramada.Infrastructure.Data;
+using CompraProgramada.Infrastructure.Kafka;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace CompraProgramada.Infrastructure.Services;
 
 public class DistribuicaoService : IDistribuicaoService
 {
     private readonly AppDbContext _db;
+    private readonly IKafkaProducerService _kafka;
+    private readonly KafkaSettings _kafkaSettings;
 
-    public DistribuicaoService(AppDbContext db) => _db = db;
+    public DistribuicaoService(
+        AppDbContext db,
+        IKafkaProducerService kafka,
+        IOptions<KafkaSettings> kafkaSettings)
+    {
+        _db = db;
+        _kafka = kafka;
+        _kafkaSettings = kafkaSettings.Value;
+    }
 
     /// <summary>
     /// Distribui ativos da conta Master para as contas Filhote
-    /// de forma proporcional ao aporte de cada cliente (RN-035 a RN-040).
+    /// de forma proporcional ao aporte de cada cliente (RN-034 a RN-040).
+    /// Publica IR dedo-duro no Kafka com payload completo (RN-053 a RN-056).
     /// </summary>
     public async Task<DistribuicaoResponse> DistribuirAsync(int ordemCompraId)
     {
@@ -72,7 +85,7 @@ public class DistribuicaoService : IDistribuicaoService
                     PrecoUnitario = precoItem
                 });
 
-                // Atualizar custódia filhote
+                // Atualizar custódia filhote (UPSERT por ticker)
                 var custodiaFilhote = cliente.ContaGrafica?.Custodia?
                     .FirstOrDefault(ci => ci.Ticker == ticker);
 
@@ -93,6 +106,27 @@ public class DistribuicaoService : IDistribuicaoService
                         PrecoMedio = precoItem
                     });
                 }
+
+                // ── RN-053 a RN-056: IR Dedo-Duro no Kafka ─────────────
+                var valorOperacao = qtdCliente * precoItem;
+                const decimal aliquotaDedoDuro = 0.00005m;
+                var valorIR = IRCalculator.CalcularDedoDuro(valorOperacao);
+
+                await _kafka.PublishAsync(
+                    _kafkaSettings.TopicIRDedoDuro,
+                    $"{cliente.Id}:{ticker}",
+                    new IRDedoDuroEvent(
+                        Tipo:          "IR_DEDO_DURO",
+                        ClienteId:     cliente.Id,
+                        Cpf:           cliente.CPF,
+                        Ticker:        ticker,
+                        TipoOperacao:  "COMPRA",
+                        Quantidade:    qtdCliente,
+                        PrecoUnitario: precoItem,
+                        ValorOperacao: valorOperacao,
+                        Aliquota:      aliquotaDedoDuro,
+                        ValorIR:       valorIR,
+                        DataOperacao:  DateTime.UtcNow));
 
                 itensCliente.Add(new ItemDistribuidoResponse(ticker, qtdCliente, precoItem));
             }

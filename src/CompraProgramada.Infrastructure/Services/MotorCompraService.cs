@@ -140,16 +140,8 @@ public class MotorCompraService : IMotorCompraService
                 });
             }
 
-            // RN-053: IR Dedo-duro
-            var valorOperacao = quantidadeTotal * preco;
-            var dedoDuro = IRCalculator.CalcularDedoDuro(valorOperacao);
-
-            await _kafka.PublishAsync(
-                _kafkaSettings.TopicIRDedoDuro,
-                cestaItem.Ticker,
-                new IRNotificacaoResponse(
-                    "DEDO_DURO", 0, cestaItem.Ticker,
-                    valorOperacao, dedoDuro, request.DataExecucao));
+            // Nota: IR Dedo-Duro é publicado por cliente na DistribuicaoService (RN-053 a RN-056),
+            // pois somente nesse momento conhecemos o CPF e a proporção exata de cada investidor.
         }
 
         _db.OrdensCompra.Add(ordem);

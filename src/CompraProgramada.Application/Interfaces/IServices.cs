@@ -21,6 +21,7 @@ public interface ICestaService
 {
     Task<CestaResponse> CriarOuSubstituirAsync(CriarCestaRequest request);
     Task<CestaResponse> ObterAtivaAsync();
+    Task<HistoricoCestasResponse> ObterHistoricoAsync();
 }
 
 /// <summary>

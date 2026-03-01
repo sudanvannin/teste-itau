@@ -81,9 +81,34 @@ public class CestaService : ICestaService
             .FirstOrDefaultAsync(c => c.Ativa)
             ?? throw new BusinessException("Nenhuma cesta ativa encontrada.", "CESTA_NAO_ENCONTRADA");
 
-        return new CestaResponse(
+        return MapearCesta(cesta);
+    }
+
+    /// <summary>
+    /// Retorna histórico completo de cestas, ativas e inativas, da mais recente à mais antiga.
+    /// </summary>
+    public async Task<HistoricoCestasResponse> ObterHistoricoAsync()
+    {
+        var cestas = await _db.CestasRecomendacao
+            .Include(c => c.Itens)
+            .OrderByDescending(c => c.DataCriacao)
+            .ToListAsync();
+
+        var respostas = cestas.Select(MapearCesta).ToList();
+
+        return new HistoricoCestasResponse(
+            cestas.Count,
+            respostas.FirstOrDefault(c => c.Ativa),
+            respostas);
+    }
+
+    private static CestaResponse MapearCesta(CestaRecomendacao cesta) =>
+        new CestaResponse(
             cesta.Id, cesta.Nome, cesta.Ativa, cesta.DataCriacao,
             cesta.Itens.Select(i => new CestaItemResponse(i.Ticker, i.Percentual)).ToList(),
-            "Cesta ativa encontrada.");
-    }
+            cesta.Ativa ? "Cesta ativa." : "Cesta desativada.")
+        {
+            DataDesativacao = cesta.DataDesativacao
+        };
 }
+

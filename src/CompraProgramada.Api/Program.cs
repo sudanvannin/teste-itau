@@ -49,7 +49,7 @@ builder.Services.AddHostedService<KafkaConsumerHostedService>();
 // ── Application Services ─────────────────────────────────────
 builder.Services.AddScoped<IClienteService, CompraProgramada.Infrastructure.Services.ClienteService>();
 builder.Services.AddScoped<ICestaService, CompraProgramada.Infrastructure.Services.CestaService>();
-builder.Services.AddScoped<ICotacaoService, CompraProgramada.Application.Services.CotacaoService>();
+builder.Services.AddScoped<ICotacaoService, CompraProgramada.Infrastructure.Services.CotacaoInfraService>();
 builder.Services.AddScoped<IMotorCompraService, CompraProgramada.Infrastructure.Services.MotorCompraService>();
 builder.Services.AddScoped<IDistribuicaoService, CompraProgramada.Infrastructure.Services.DistribuicaoService>();
 builder.Services.AddScoped<IRebalanceamentoService, CompraProgramada.Infrastructure.Services.RebalanceamentoService>();
@@ -79,6 +79,3 @@ app.Run();
 
 // Needed for integration tests (WebApplicationFactory)
 public partial class Program { }
-
-public partial class Program { }
-
