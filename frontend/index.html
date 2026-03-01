@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compra Programada B3 — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0d14;
+      --surface: #111827;
+      --surface2: #1a2235;
+      --border: #1f2d45;
+      --accent: #3b82f6;
+      --accent2: #6366f1;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo { font-size: 22px; font-weight: 800; background: linear-gradient(90deg, #3b82f6, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .badge { background: var(--accent); color: white; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; letter-spacing: .5px; }
+    .api-url { margin-left: auto; font-size: 12px; color: var(--muted); }
+    .api-url input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      width: 280px;
+    }
+
+    /* ── Layout ── */
+    .layout { display: flex; height: calc(100vh - 65px); }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 12px;
+      flex-shrink: 0;
+    }
+    .sidebar-section { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 8px 12px; margin-top: 12px; }
+    .nav-btn {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 10px 12px; border-radius: 8px;
+      background: none; border: none; color: var(--text);
+      font-family: inherit; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all .2s; text-align: left;
+    }
+    .nav-btn:hover { background: var(--surface2); }
+    .nav-btn.active { background: rgba(59,130,246,.15); color: var(--accent); border: 1px solid rgba(59,130,246,.25); }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    /* ── Main ── */
+    .main { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+    .card-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+
+    /* ── Form ── */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 12px; font-weight: 500; color: var(--muted); }
+    input, select, textarea {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 9px 18px; border-radius: 8px; border: none;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-success { background: var(--green); color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: var(--red); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-warning { background: var(--yellow); color: white; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--accent); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Response Box ── */
+    .response-box {
+      background: #080c14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      max-height: 320px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-top: 14px;
+    }
+    .response-box.success { border-left: 3px solid var(--green); }
+    .response-box.error   { border-left: 3px solid var(--red); }
+
+    /* ── Status Badge ── */
+    .status { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .status-ok  { background: rgba(16,185,129,.15); color: var(--green); }
+    .status-err { background: rgba(239,68,68,.15);  color: var(--red); }
+
+    /* ── Cesta items ── */
+    .cesta-grid { display: grid; gap: 10px; }
+    .cesta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: end; }
+    .percentual-total { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .percentual-total span { color: var(--accent); font-weight: 700; }
+
+    /* ── Stat cards ── */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .stat-value { font-size: 22px; font-weight: 700; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Loader ── */
+    .loader { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📈 Compra Programada B3</div>
+  <span class="badge">SANDBOX</span>
+  <div class="api-url">
+    <input id="apiBase" value="http://localhost:5000" placeholder="API Base URL" />
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-section">Cliente</div>
+    <button class="nav-btn active" onclick="switchPanel('adesao')"><span class="nav-icon">👤</span> Adesão</button>
+    <button class="nav-btn" onclick="switchPanel('saida')"><span class="nav-icon">🚪</span> Saída</button>
+    <button class="nav-btn" onclick="switchPanel('valor')"><span class="nav-icon">💰</span> Alterar Valor</button>
+    <button class="nav-btn" onclick="switchPanel('carteira')"><span class="nav-icon">📊</span> Carteira</button>
+    <button class="nav-btn" onclick="switchPanel('rentabilidade')"><span class="nav-icon">📈</span> Rentabilidade</button>
+
+    <div class="sidebar-section" style="margin-top:20px">Admin</div>
+    <button class="nav-btn" onclick="switchPanel('cesta')"><span class="nav-icon">🧺</span> Cesta Top 5</button>
+    <button class="nav-btn" onclick="switchPanel('compra')"><span class="nav-icon">⚡</span> Disparar Compra</button>
+    <button class="nav-btn" onclick="switchPanel('distribuir')"><span class="nav-icon">🔀</span> Distribuir</button>
+    <button class="nav-btn" onclick="switchPanel('rebalancear')"><span class="nav-icon">⚖️</span> Rebalancear</button>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main">
+
+    <!-- ── Adesão ── -->
+    <div id="panel-adesao" class="panel active">
+      <h2>👤 Adesão ao Produto</h2>
+      <p class="subtitle">Cria um novo cliente e sua conta gráfica filhote automaticamente.</p>
+      <div class="card">
+        <div class="card-title">📝 Dados do Cliente</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nome completo</label><input id="a-nome" type="text" value="João Silva" /></div>
+          <div class="form-group"><label>CPF (apenas números)</label><input id="a-cpf" type="text" value="12345678901" maxlength="11" /></div>
+          <div class="form-group"><label>E-mail</label><input id="a-email" type="email" value="joao@email.com" /></div>
+          <div class="form-group"><label>Valor Mensal (R$)</label><input id="a-valor" type="number" value="1500" min="100" /></div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="aderir()">✅ Aderir ao Produto</button>
+        </div>
+        <div id="res-adesao" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── Saída ── -->
+    <div id="panel-saida" class="panel">
+      <h2>🚪 Saída do Produto</h2>
+      <p class="subtitle">Encerra a participação do cliente. A custódia é mantida.</p>
+      <div class="card">
+        <div class="card-title">🆔 Identificação</div>
+        <div class="form-grid">
+          <div class="form-group"><label>ID do Cliente</label><input id="s-id" type="number" value="1" /></div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-danger" onclick="sair()">🚪 Encerrar Adesão</button>
+        </div>
+        <div id="res-saida" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── Valor ── -->
+    <div id="panel-valor" class="panel">
+      <h2>💰 Alterar Valor Mensal</h2>
+      <p class="subtitle">Altera o valor de aporte mensal do cliente. Mínimo: R$100,00.</p>
+      <div class="card">
+        <div class="card-title">📝 Dados</div>
+        <div class="form-grid">
+          <div class="form-group"><label>ID do Cliente</label><input id="v-id" type="number" value="1" /></div>
+          <div class="form-group"><label>Novo Valor Mensal (R$)</label><input id="v-valor" type="number" value="2000" min="100" /></div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-warning" onclick="alterarValor()">💱 Atualizar Valor</button>
+        </div>
+        <div id="res-valor" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── Carteira ── -->
+    <div id="panel-carteira" class="panel">
+      <h2>📊 Consultar Carteira</h2>
+      <p class="subtitle">Visualize a carteira atual com P&L e composição de cada ativo.</p>
+      <div class="card">
+        <div class="card-title">🔎 Consulta</div>
+        <div class="form-grid">
+          <div class="form-group"><label>ID do Cliente</label><input id="c-id" type="number" value="1" /></div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="consultarCarteira()">📊 Ver Carteira</button>
+        </div>
+        <div id="res-carteira" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── Rentabilidade ── -->
+    <div id="panel-rentabilidade" class="panel">
+      <h2>📈 Rentabilidade</h2>
+      <p class="subtitle">Histórico de aportes e evolução da carteira ao longo do tempo.</p>
+      <div class="card">
+        <div class="card-title">🔎 Consulta</div>
+        <div class="form-grid">
+          <div class="form-group"><label>ID do Cliente</label><input id="r-id" type="number" value="1" /></div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-primary" onclick="consultarRentabilidade()">📈 Ver Rentabilidade</button>
+        </div>
+        <div id="res-rentabilidade" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── Cesta ── -->
+    <div id="panel-cesta" class="panel">
+      <h2>🧺 Cesta de Recomendação (Top 5)</h2>
+      <p class="subtitle">Define os 5 ativos da cesta ativa. A soma dos percentuais deve ser exatamente 100%.</p>
+      <div class="card">
+        <div class="card-title">📄 Cesta Atual</div>
+        <button class="btn btn-ghost" onclick="verCesta()">🔍 Carregar Cesta Ativa</button>
+        <div id="res-cesta-get" class="response-box" style="display:none"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">✏️ Criar / Substituir Cesta</div>
+        <div class="form-grid" style="grid-template-columns: 1fr;">
+          <div class="form-group"><label>Nome da Cesta</label><input id="cesta-nome" type="text" value="Top 5 Fevereiro 2026" /></div>
+        </div>
+        <div class="cesta-grid" id="cesta-itens" style="margin-top:14px;">
+          <div class="cesta-row">
+            <div class="form-group"><label>Ticker 1</label><input type="text" class="cesta-ticker" value="PETR4" /></div>
+            <div class="form-group"><label>Percentual (%)</label><input type="number" class="cesta-pct" value="25" min="0" max="100" /></div>
+          </div>
+          <div class="cesta-row">
+            <div class="form-group"><label>Ticker 2</label><input type="text" class="cesta-ticker" value="VALE3" /></div>
+            <div class="form-group"><label>Percentual (%)</label><input type="number" class="cesta-pct" value="25" min="0" max="100" /></div>
+          </div>
+          <div class="cesta-row">
+            <div class="form-group"><label>Ticker 3</label><input type="text" class="cesta-ticker" value="ITUB4" /></div>
+            <div class="form-group"><label>Percentual (%)</label><input type="number" class="cesta-pct" value="20" min="0" max="100" /></div>
+          </div>
+          <div class="cesta-row">
+            <div class="form-group"><label>Ticker 4</label><input type="text" class="cesta-ticker" value="BBDC4" /></div>
+            <div class="form-group"><label>Percentual (%)</label><input type="number" class="cesta-pct" value="15" min="0" max="100" /></div>
+          </div>
+          <div class="cesta-row">
+            <div class="form-group"><label>Ticker 5</label><input type="text" class="cesta-ticker" value="BBAS3" /></div>
+            <div class="form-group"><label>Percentual (%)</label><input type="number" class="cesta-pct" value="15" min="0" max="100" /></div>
+          </div>
+        </div>
+        <p class="percentual-total" id="pct-total">Total: <span>100</span>%</p>
+        <div style="margin-top:16px;">
+          <button class="btn btn-success" onclick="criarCesta()">🧺 Salvar Cesta</button>
+        </div>
+        <div id="res-cesta-post" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── Disparar Compra ── -->
+    <div id="panel-compra" class="panel">
+      <h2>⚡ Disparar Compra Consolidada</h2>
+      <p class="subtitle">Simula o disparo do fin do dia (dias 5/15/25). Consolida aportes de todos os clientes ativos e compra na conta Master.</p>
+      <div class="card">
+        <div class="card-title">📅 Parâmetros</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Data de Execução</label><input id="compra-data" type="datetime-local" /></div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-success" onclick="dispararCompra()">⚡ Executar Compra</button>
+        </div>
+        <div id="res-compra" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── Distribuir ── -->
+    <div id="panel-distribuir" class="panel">
+      <h2>🔀 Distribuir para Filhotes</h2>
+      <p class="subtitle">Distribui os ativos da conta Master proporcionalmente para cada conta filhote.</p>
+      <div class="card">
+        <div class="card-title">🆔 Ordem de Compra</div>
+        <div class="form-grid">
+          <div class="form-group"><label>ID da Ordem de Compra</label><input id="dist-id" type="number" value="1" /></div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-warning" onclick="distribuir()">🔀 Distribuir Agora</button>
+        </div>
+        <div id="res-dist" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- ── Rebalancear ── -->
+    <div id="panel-rebalancear" class="panel">
+      <h2>⚖️ Rebalanceamento</h2>
+      <p class="subtitle">Ajusta todas as carteiras dos clientes para corresponderem à cesta ativa. Vende excedentes e compra faltantes.</p>
+      <div class="card">
+        <div class="card-title">⚠️ Atenção</div>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Esta operação afeta todos os clientes ativos. Certifique-se de que há uma cesta ativa configurada antes de executar.</p>
+        <button class="btn btn-danger" onclick="rebalancear()">⚖️ Executar Rebalanceamento</button>
+        <div id="res-rebalancear" class="response-box" style="display:none"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Utils ─────────────────────────────────────────────────────
+  const api = () => document.getElementById('apiBase').value.replace(/\/$/, '');
+
+  function show(elId, data, ok) {
+    const el = document.getElementById(elId);
+    el.style.display = 'block';
+    el.className = `response-box ${ok ? 'success' : 'error'}`;
+    el.textContent = JSON.stringify(data, null, 2);
+    el.scrollTop = 0;
+  }
+
+  async function call(method, path, body, resEl) {
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    const origText = btn.innerHTML;
+    btn.innerHTML = `<span class="loader"></span> Aguardando...`;
+
+    try {
+      const opts = {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      };
+      if (body) opts.body = JSON.stringify(body);
+
+      const res = await fetch(`${api()}${path}`, opts);
+      let data;
+      try { data = await res.json(); } catch { data = { status: res.status, statusText: res.statusText }; }
+      show(resEl, data, res.ok);
+    } catch(e) {
+      show(resEl, { erro: e.message, dica: 'Verifique se a API está rodando e a URL base está correta.' }, false);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = origText;
+    }
+  }
+
+  // ── Navigation ────────────────────────────────────────────────
+  function switchPanel(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`panel-${name}`).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // ── Date default now ─────────────────────────────────────────
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('compra-data').value = now.toISOString().slice(0, 16);
+
+  // ── Percentual total ─────────────────────────────────────────
+  document.querySelectorAll('.cesta-pct').forEach(el => {
+    el.addEventListener('input', updateTotal);
+  });
+  function updateTotal() {
+    const pcts = [...document.querySelectorAll('.cesta-pct')].map(e => +e.value || 0);
+    const total = pcts.reduce((a, b) => a + b, 0);
+    document.querySelector('#pct-total span').textContent = total;
+    document.querySelector('#pct-total span').style.color = total === 100 ? 'var(--green)' : 'var(--red)';
+  }
+
+  // ── API Calls ─────────────────────────────────────────────────
+  async function aderir() {
+    await call('POST', '/api/clientes/adesao', {
+      nome: document.getElementById('a-nome').value,
+      cpf: document.getElementById('a-cpf').value,
+      email: document.getElementById('a-email').value,
+      valorMensal: +document.getElementById('a-valor').value
+    }, 'res-adesao');
+  }
+
+  async function sair() {
+    const id = document.getElementById('s-id').value;
+    await call('POST', `/api/clientes/${id}/saida`, null, 'res-saida');
+  }
+
+  async function alterarValor() {
+    const id = document.getElementById('v-id').value;
+    await call('PATCH', `/api/clientes/${id}/valor-mensal`, {
+      novoValorMensal: +document.getElementById('v-valor').value
+    }, 'res-valor');
+  }
+
+  async function consultarCarteira() {
+    const id = document.getElementById('c-id').value;
+    await call('GET', `/api/clientes/${id}/carteira`, null, 'res-carteira');
+  }
+
+  async function consultarRentabilidade() {
+    const id = document.getElementById('r-id').value;
+    await call('GET', `/api/clientes/${id}/rentabilidade`, null, 'res-rentabilidade');
+  }
+
+  async function verCesta() {
+    await call('GET', '/api/admin/cesta', null, 'res-cesta-get');
+  }
+
+  async function criarCesta() {
+    const tickers = [...document.querySelectorAll('.cesta-ticker')].map(e => e.value.trim().toUpperCase());
+    const pcts = [...document.querySelectorAll('.cesta-pct')].map(e => +e.value);
+    await call('POST', '/api/admin/cesta', {
+      nome: document.getElementById('cesta-nome').value,
+      itens: tickers.map((t, i) => ({ ticker: t, percentual: pcts[i] }))
+    }, 'res-cesta-post');
+  }
+
+  async function dispararCompra() {
+    const dt = document.getElementById('compra-data').value;
+    await call('POST', '/api/admin/compra/disparar', {
+      dataExecucao: new Date(dt).toISOString()
+    }, 'res-compra');
+  }
+
+  async function distribuir() {
+    const id = document.getElementById('dist-id').value;
+    await call('POST', `/api/admin/compra/${id}/distribuir`, null, 'res-dist');
+  }
+
+  async function rebalancear() {
+    await call('POST', '/api/admin/rebalanceamento', null, 'res-rebalancear');
+  }
+</script>
+</body>
+</html>

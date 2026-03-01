@@ -16,6 +16,13 @@ builder.Services.AddControllers()
             System.Text.Json.JsonNamingPolicy.CamelCase;
     });
 
+// ── CORS (permite o frontend chamar a API direto do browser) ─
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 // ── Swagger / OpenAPI ────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -50,6 +57,7 @@ builder.Services.AddScoped<IRebalanceamentoService, CompraProgramada.Infrastruct
 var app = builder.Build();
 
 // ── Middleware Pipeline ──────────────────────────────────────
+app.UseCors();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
